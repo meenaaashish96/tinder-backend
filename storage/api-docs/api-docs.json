@@ -1,0 +1,60 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Tinder Clone API",
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/profiles": {
+            "get": {
+                "summary": "Get recommended profiles",
+                "operationId": "64cca3e26f42a677fb8348178b34432b",
+                "responses": {
+                    "200": {
+                        "description": "List of profiles"
+                    }
+                }
+            }
+        },
+        "/api/swipe": {
+            "post": {
+                "summary": "Swipe Right (Like) or Left (Nope)",
+                "operationId": "48b2b96764624e2c8e6d173d9cc98828",
+                "parameters": [
+                    {
+                        "name": "profile_id",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "is_like",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Swipe recorded"
+                    }
+                }
+            }
+        },
+        "/api/likes": {
+            "get": {
+                "summary": "Get list of people the user liked",
+                "operationId": "f7adc9e01ed6f54f296d956fa829d92c",
+                "responses": {
+                    "200": {
+                        "description": "List of liked profiles"
+                    }
+                }
+            }
+        }
+    }
+}
