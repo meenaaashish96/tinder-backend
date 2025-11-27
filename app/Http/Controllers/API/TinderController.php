@@ -84,4 +84,41 @@ class TinderController extends Controller
 
         return response()->json($likedProfiles);
     }
+
+    /**
+     * @OA\Post(
+     * path="/api/profile",
+     * summary="Create a new profile manually",
+     * @OA\Response(response="201", description="Profile created")
+     * )
+     */
+    public function createProfile(Request $request)
+    {
+        // 1. Validate Input
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'age' => 'required|integer',
+            'location' => 'required|string',
+            'bio' => 'nullable|string',
+            'image_url' => 'required|url' // Accepts a direct URL string
+        ]);
+
+        // 2. Create the Profile
+        $profile = Profile::create([
+            'name' => $validated['name'],
+            'age' => $validated['age'],
+            'location' => $validated['location'],
+            'bio' => $validated['bio'] ?? null,
+        ]);
+
+        // 3. Add the Image
+        $profile->images()->create([
+            'image_url' => $validated['image_url']
+        ]);
+
+        return response()->json([
+            'message' => 'Profile created successfully', 
+            'data' => $profile->load('images')
+        ], 201);
+    }
 }

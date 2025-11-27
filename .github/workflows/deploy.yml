@@ -1,0 +1,60 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Install Dependencies
+        run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+      - name: Copy .env
+        run: cp .env.example .env
+
+      - name: Generate Key
+        run: php artisan key:generate
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Navigate to project folder
+            cd /var/www/html
+            
+            # Pull latest code from GitHub
+            git pull origin main
+            
+            # Install/Update Composer dependencies
+            composer install --no-interaction --prefer-dist --optimize-autoloader
+            
+            # Run Database Migrations (Force is required in production)
+            php artisan migrate --force
+            
+            # Clear and Rebuild Caches
+            php artisan cache:clear
+            php artisan config:clear
+            php artisan route:clear
+            php artisan view:clear
+            
+            # Set Permissions (Just in case)
+            sudo chown -R ubuntu:www-data /var/www/html
+            sudo chmod -R 775 /var/www/html/storage
+            sudo chmod -R 775 /var/www/html/bootstrap/cache
+            
+            echo "Deployment finished successfully!"
