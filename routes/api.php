@@ -26,7 +26,10 @@ Route::middleware('auth:api')->group(function () {
     
     // 3. Get Liked List
     Route::get('/likes', [TinderController::class, 'getLikedProfiles']);
-    
+   
+    // 4. create new profile
+    Route::post('/profile', [TinderController::class, 'createProfile']);
+
     // User Info
     Route::get('/user', function (Request $request) {
         return $request->user();
